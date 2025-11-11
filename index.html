@@ -34,7 +34,83 @@
     <div class="card p-10 rounded-3xl">
       <h2 class="text-4xl gold mb-8 text-center">Ruh Halini Söyle, Çayını Biz Tasarlayalım</h2>
       <div class="space-y-6">
-        <input id="mood" placeholder="Bugün nasılsın?" class="w-full p-5 rounded-xl bg-black/40 border border-gold/30 text-white text-lg">
+        <input id="mood" placeholder="Bugün nasılsın?" class="w-full p-5 rounded-2xl bg-black/40 border border-gold/30 text-white text-lg">
+        <input id="intention" placeholder="Bu ayki niyetin?" class="w-full p-5 rounded-2xl bg-black/40 border border-gold/30 text-white text-lg">
+        <button onclick="generatePreview()" class="w-full btn text-black font-bold text-xl py-6 rounded-2xl">
+          Önizleme Oluştur
+        </button>
+      </div>
+      <div id="preview" class="hidden mt-8 p-8 bg-black/50 rounded-2xl border border-gold/20">
+        <h3 class="text-2xl gold mb-4">Bu ayki özel karışımın:</h3>
+        <p id="ai-result" class="text-xl italic"></p>
+      </div>
+    </div>
+
+    <!-- Sağ: Abonelik Paketleri -->
+    <div class="space-y-8">
+      <h2 class="text-4xl gold text-center mb-10">Abonelik Seçenekleri</h2>
+      
+      <div class="card p-8 rounded-3xl text-center hover:border-gold/60 transition">
+        <h3 class="text-3xl mb-4">1 Aylık</h3>
+        <p class="text-6xl font-bold gold mb-4">149 TL</p>
+        <p class="mb-8 opacity-80">4 özel çay + niyet kartı</p>
+        <a href="https://buy.stripe.com/28o8wE5bN6aB5kE6oo" class="block btn text-black font-bold text-xl py-6 rounded-2xl">Hemen Başla</a>
+      </div>
+
+      <div class="card p-8 rounded-3xl text-center border-2 border-gold/60 relative hover:border-gold transition">
+        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-black px-6 py-2 rounded-full text-sm font-bold">EN POPÜLER</span>
+        <h3 class="text-3xl mb-4">3 Aylık</h3>
+        <p class="text-6xl font-bold gold mb-4">399 TL <span class="text-2xl line-through opacity-60">447 TL</span></p>
+        <p class="mb-8 opacity-80">Toplam 12 özel çay + hediye ritüel mumu</p>
+        <a href="https://buy.stripe.com/28o3EQ5bN9iJ7qQ8ww" class="block btn text-black font-bold text-xl py-6 rounded-2xl">Seçtim</a>
+      </div>
+
+      <div class="card p-8 rounded-3xl text-center hover:border-gold/60 transition">
+        <h3 class="text-3xl mb-4">6 Aylık</h3>
+        <p class="text-6xl font-bold gold mb-4">749 TL <span class="text-2xl line-through opacity-60">894 TL</span></p>
+        <p class="mb-8 opacity-80">Toplam 24 özel çay + mum + özel ahşap kutu</p>
+        <a href="https://buy.stripe.com/28o6sA7fZ2Qt9wA4gh" class="block btn text-black font-bold text-xl py-6 rounded-2xl">En İyisi Bu</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alt Bilgi -->
+  <footer class="text-center py-12 opacity-60">
+    <p>3-5 iş günü içinde kapında • Kargo ücretsiz • İptal etmek her zaman ücretsiz</p>
+    <p class="mt-4">© 2025 ZEZELABS • Türkiye’nin ilk AI ritüel çayı</p>
+  </footer>
+
+  <script>
+    async function generatePreview() {
+      const mood = document.getElementById("mood").value || "huzurlu";
+      const intention = document.getElementById("intention").value || "içimdeki gücü uyandırmak";
+
+      const prompt = `Ruh hali: "${mood}". Niyet: "${intention}". 
+      Sadece 2 satır Türkçe kısa cümle döndür, başka hiçbir şey yazma.`;
+
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer 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",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-70b-versatile",
+          temperature: 0.9,
+          max_tokens: 100,
+          messages: [{role:"user", content: prompt}]
+        })
+      });
+
+      const data = await res.json();
+      const text = data.choices[0].message.content.trim();
+      
+      document.getElementById("ai-result").innerText = text || "Bu ay sana çok yakışacak bir karışım hazırladık…";
+      document.getElementById("preview").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>        <input id="mood" placeholder="Bugün nasılsın?" class="w-full p-5 rounded-xl bg-black/40 border border-gold/30 text-white text-lg">
         <input id="intention" placeholder="Bu ayki niyetin?" class="w-full p-5 rounded-xl bg-black/40 border border-gold/30 text-white text-lg">
         <button onclick="generatePreview()" class="w-full btn text-black font-bold text-xl py-6 rounded-xl">
           Önizleme Oluştur

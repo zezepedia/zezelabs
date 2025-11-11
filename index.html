@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZEZELABS – AI Ritüel Çayı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f0a1a; color: #e6d5c3; font-family: 'Georgia', serif; }
+    .glow { text-shadow: 0 0 20px #b89f7a; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="max-w-lg w-full mx-4 text-center">
+    <h1 class="text-5xl font-bold glow mb-2">ZEZELABS</h1>
+    <p class="text-xl mb-10">Ruh haline özel AI ritüel çayı</p>
+
+    <div id="quiz" class="space-y-6">
+      <input id="mood" placeholder="Bugün nasılsın?" class="w-full p-4 rounded-lg bg-[#1a1324] border border-[#b89f7a] text-white" />
+      <input id="intention" placeholder="Niyetin nedir?" class="w-full p-4 rounded-lg bg-[#1a1324] border border-[#b89f7a] text-white" />
+      
+      <select id="frequency" class="w-full p-4 rounded-lg bg-[#1a1324] border border-[#b89f7a] text-white">
+        <option value="">Ne sıklıkta içeceksin?</option>
+        <option>Günde 1 kez</option>
+        <option>Günde 2 kez</option>
+        <option>Sadece akşamları</option>
+      </select>
+
+      <button onclick="createRitual()" class="w-full bg-[#b89f7a] hover:bg-[#d4c2a8] text-[#0f0a1a] font-bold py-5 rounded-lg text-xl transition">
+        Ritüelimi Başlat
+      </button>
+    </div>
+
+    <div id="result" class="hidden mt-10 space-y-6 animate-pulse">
+      <h2 id="ritualName" class="text-4xl glow"></h2>
+      <div id="blend" class="text-2xl"></div>
+      <ol id="steps" class="text-left text-lg space-y-3 mt-8"></ol>
+      <p id="niyet" class="text-2xl italic mt-10 glow"></p>
+      
+      <button onclick="window.location.href='https://buy.stripe.com/test_3cs7sA4ZJ5Zx9oA000'" 
+              class="mt-10 bg-green-600 hover:bg-green-700 text-white font-bold py-5 px-12 rounded-lg text-xl">
+        149 TL – Sepete Ekle (Test Ödeme)
+      </button>
+    </div>
+  </div>
+
+  <script>
+    async function createRitual() {
+      const mood = document.getElementById("mood").value || "huzur";
+      const intention = document.getElementById("intention").value || "huzur bulmak";
+      const frequency = document.getElementById("frequency").value || "günde 1 kez";
+
+      const prompt = `Kullanıcı ruh hali: "${mood}", niyeti: "${intention}", sıklık: "${frequency}". 
+      Sadece JSON döndür, başka hiçbir şey yazma. Format:
+      {"blend":[{"herb":"Lavanta","percentage":60},{"herb":"Melisa","percentage":40}],"steps":["1. Suyun ısısı...","2. ..."],"niyet":"Huzur benimle."}`;
+
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer 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",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-70b-versatile",
+          messages: [{role:"user", content: prompt}],
+          temperature: 0.7,
+          max_tokens: 300
+        })
+      });
+
+      const data = await res.json();
+      let result = {};
+      try {
+        result = JSON.parse(data.choices[0].message.content);
+      } catch {
+        result = {
+          blend: [{herb:"Lavanta", percentage:60}, {herb:"Melisa", percentage:40}],
+          steps: ["Suyu 95°C'ye getirin.","Karışımı demliğe ekleyin.","7 dakika demleyin.","Niyetinizi içinizden tekrarlayın.","Yavaşça için."],
+          niyet: "Huzur, içimde zaten var."
+        };
+      }
+
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+      
+      document.getElementById("ritualName").innerText = `${result.blend[0].herb} & ${result.blend[1]?.herb || "Melisa"} Ritüeli`;
+      document.getElementById("blend").innerText = result.blend.map(b => `${b.herb} %${b.percentage}`).join(" + ");
+      document.getElementById("steps").innerHTML = result.steps.map(s => `<li class="bg-[#1a1324] p-4 rounded-lg">${s}</li>`).join("");
+      document.getElementById("niyet").innerText = `“${result.niyet}”`;
+    }
+  </script>
+</body>
+</html>
